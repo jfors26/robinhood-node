@@ -23,8 +23,8 @@ function RobinhoodWebApi(opts, callback) {
   var _options = opts || {},
       // Private API Endpoints
       _endpoints = {
-        login:  'api-token-auth/',
-        logout: 'api-token-logout/',
+        login:  'oauth2/token/',
+        logout: 'oauth2/revoke_token/',
         investment_profile: 'user/investment_profile/',
         accounts: 'accounts/',
         ach_iav_auth: 'ach/iav/auth/',
@@ -67,7 +67,8 @@ function RobinhoodWebApi(opts, callback) {
       username : null,
       password : null,
       headers : null,
-      auth_token : null
+      auth_token : null,
+      client_id : 'c82SH0WZOsabOXGP2sxqcj34FxkvfnWRZBKlBjFS'
     },
     api = {};
 
@@ -116,6 +117,9 @@ function RobinhoodWebApi(opts, callback) {
     _request.post({
       uri: _apiUrl + _endpoints.login,
       form: {
+        grant_type: 'password',
+        scope: 'internal',
+        client_id: _private.client_id,
         password: _private.password,
         username: _private.username
       }
@@ -124,7 +128,7 @@ function RobinhoodWebApi(opts, callback) {
         throw (err);
       }
 
-      _private.auth_token = body.token;
+      _private.auth_token = body.access_token;
       _build_auth_header(_private.auth_token);
 
       _setHeaders();
@@ -154,7 +158,7 @@ function RobinhoodWebApi(opts, callback) {
   }
 
   function _build_auth_header(token) {
-    _private.headers.Authorization = 'Token ' + token;
+    _private.headers.Authorization = 'Bearer ' + token;
   }
 
   /* +--------------------------------+ *
